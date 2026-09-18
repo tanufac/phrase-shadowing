@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Phrase Shadowing - 頻出フレーズ暗記</title>
+<style>
+  /* ===== ヨーロッパ風クラシック（ネイビー・ボルドー・ゴールド・生成り） ===== */
+  :root {
+    --navy: #1f3a5f;
+    --navy-soft: #33517a;
+    --bordeaux: #7b2d3a;
+    --gold: #b8974a;
+    --gold-soft: #cdb173;
+    --cream: #f4efe4;
+    --paper: #fbf8f0;
+    --ink: #2a2b2f;
+    --ink-soft: #6b6559;
+    --line: #ddd2ba;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); line-height: 1.7;
+    font-family: "Georgia", "Times New Roman", "Hiragino Mincho ProN", serif;
+    min-height: 100vh;
+    background-color: var(--cream);
+    background-image:
+      radial-gradient(circle at 12% -5%, rgba(31,58,95,0.06), transparent 40%),
+      radial-gradient(circle at 90% 0%, rgba(123,45,58,0.06), transparent 40%);
+    background-attachment: fixed;
+  }
+  header { text-align: center; padding: 30px 20px 10px; }
+  header .crest { font-size: 22px; color: var(--gold); letter-spacing: 6px; }
+  header h1 { margin: 6px 0 0; font-size: 27px; font-weight: 700; color: var(--navy); letter-spacing: 1px; }
+  header h1 .amp { color: var(--bordeaux); font-style: italic; }
+  header .rule { width: 90px; height: 2px; background: var(--gold); margin: 12px auto 0; position: relative; }
+  header .rule::before, header .rule::after { content: "◆"; color: var(--gold); font-size: 9px; position: absolute; top: -6px; }
+  header .rule::before { left: -16px; } header .rule::after { right: -16px; }
+  header p { margin: 12px 0 0; font-size: 13px; color: var(--ink-soft); font-style: italic; }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 12px 16px 70px; }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 4px;
+    box-shadow: 0 1px 0 #fff inset, 0 8px 22px rgba(40,40,60,0.08); }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tab { cursor: pointer; font-family: inherit; border: 1px solid var(--line); background: var(--paper);
+    color: var(--navy); border-radius: 3px; padding: 9px 16px; font-size: 14px; font-weight: 700; letter-spacing: .5px; transition: all .12s; }
+  .tab:hover { border-color: var(--gold); }
+  .tab.active { background: var(--navy); color: var(--cream); border-color: var(--navy); }
+
+  .sets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .set { cursor: pointer; font-family: inherit; border: 1px solid var(--line); background: transparent;
+    color: var(--ink-soft); border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 700; transition: all .12s; }
+  .set:hover { border-color: var(--bordeaux); color: var(--bordeaux); }
+  .set.active { background: var(--bordeaux); color: var(--cream); border-color: var(--bordeaux); }
+  .set .done { color: var(--gold); }
+
+  .voicebar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .voicebar label { font-size: 12px; color: var(--ink-soft); letter-spacing: 1px; }
+  .voicebar select { font-family: inherit; font-size: 13px; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 7px 10px; max-width: 320px; }
+  .voicebar select:focus { outline: none; border-color: var(--gold); }
+  .voicebar .btn { padding: 7px 14px; font-size: 13px; }
+
+  .modes { display: flex; gap: 8px; margin-bottom: 16px; }
+  .mode { cursor: pointer; font-family: inherit; border: 1px solid var(--line); background: var(--paper);
+    color: var(--ink-soft); border-radius: 3px; padding: 8px 14px; font-size: 13px; font-weight: 700; transition: all .12s; }
+  .mode.active { background: var(--gold); color: #3a2f10; border-color: var(--gold); }
+
+  .card { padding: 30px 28px; text-align: center; }
+  .counter { font-size: 12px; color: var(--ink-soft); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .tag { display: inline-block; font-size: 11px; color: var(--bordeaux); border: 1px solid var(--line); border-radius: 999px; padding: 2px 12px; margin-bottom: 18px; letter-spacing: 1px; }
+  .en { font-size: 27px; font-weight: 700; color: var(--navy); min-height: 40px; }
+  .en.veiled { color: transparent; text-shadow: 0 0 15px rgba(31,58,95,0.4); cursor: pointer; }
+  .ja { font-size: 17px; color: var(--ink-soft); margin-top: 14px; }
+  .ja.big { font-size: 24px; color: var(--ink); font-weight: 700; }
+  .ja.veiled { color: transparent; text-shadow: 0 0 12px rgba(107,101,89,0.45); cursor: pointer; }
+
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 24px; }
+  .btn { cursor: pointer; font-family: inherit; border: 1px solid transparent; border-radius: 3px;
+    padding: 10px 18px; font-size: 14px; font-weight: 700; letter-spacing: .5px; transition: transform .1s, background .12s; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-navy { background: var(--navy); color: var(--cream); }
+  .btn-navy:hover { background: var(--navy-soft); }
+  .btn-ghost { background: var(--paper); color: var(--navy); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--gold); }
+  .btn-gold { background: var(--gold); color: #3a2f10; }
+  .btn-bord { background: var(--bordeaux); color: var(--cream); }
+
+  .check { display: flex; gap: 10px; justify-content: center; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .check .label { font-size: 12px; color: var(--ink-soft); align-self: center; }
+
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding: 12px 16px; }
+  .nav button { cursor: pointer; font-family: inherit; background: var(--paper); border: 1px solid var(--line);
+    color: var(--navy); border-radius: 3px; padding: 8px 18px; font-size: 14px; font-weight: 700; }
+  .nav button:hover { border-color: var(--gold); }
+  .nav button:disabled { opacity: .4; cursor: default; }
+  .nav .count { font-size: 12px; color: var(--ink-soft); letter-spacing: 1px; }
+
+  .progress { text-align: center; font-size: 12px; color: var(--ink-soft); margin-bottom: 12px; letter-spacing: 1px; }
+  .progress b { color: var(--gold); }
+  .hint { text-align: center; font-size: 12px; color: var(--ink-soft); margin-top: 14px; font-style: italic; }
+  .keys { text-align: center; font-size: 12px; color: var(--ink-soft); margin-top: 16px; letter-spacing: .5px; }
+  .keys kbd { font-family: inherit; font-size: 11px; font-weight: 700; color: var(--navy);
+    background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 4px; padding: 2px 8px; margin: 0 2px; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="crest">✦ ✦ ✦</div>
+    <h1>Phrase Shadowing</h1>
+    <div class="rule"></div>
+    <p>頻出フレーズを「聞いて、口に出して、自分から言える」まで</p>
+  </header>
+
+  <div class="wrap">
+    <div class="row" id="cats"></div>
+    <div class="modes">
+      <button class="mode active" data-mode="listen">🎧 耳から（聞く & 復唱）</button>
+      <button class="mode" data-mode="recall">🗣 英作文（日本語→英語）</button>
+      <button class="mode" data-mode="model">📜 モデル説明（通し）</button>
+      <button class="mode" data-mode="review">★ 復習リスト</button>
+    </div>
+    <div class="voicebar">
+      <label for="voiceSelect">声</label>
+      <select id="voiceSelect"></select>
+      <button class="btn btn-ghost" id="voiceTest">🔊 試聴</button>
+    </div>
+
+    <div class="sets" id="sets"></div>
+    <div class="progress" id="progress"></div>
+
+    <div class="panel card" id="card"></div>
+
+    <div class="panel nav">
+      <button id="prev">← 前へ</button>
+      <span class="count" id="navCount"></span>
+      <button id="next">次へ →</button>
+    </div>
+
+    <div class="keys">
+      キーボード操作 &nbsp;
+      <kbd>Space</kbd> 聞く &nbsp;·&nbsp;
+      <kbd>Enter</kbd> 訳（答え）を表示 &nbsp;·&nbsp;
+      <kbd>←</kbd> 前へ &nbsp;·&nbsp;
+      <kbd>→</kbd> 次へ
+    </div>
+  </div>
+
+  <script src="phrases.js"></script>
+  <script>
+  (function () {
+    const catsEl = document.getElementById("cats");
+    const setsEl = document.getElementById("sets");
+    const cardEl = document.getElementById("card");
+    const progressEl = document.getElementById("progress");
+    const navCount = document.getElementById("navCount");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const modeBtns = document.querySelectorAll(".mode");
+
+    let currentCat = Object.keys(PHRASES)[0];
+    let currentSet = 0;
+    let index = 0;
+    let mode = "listen";           // listen | recall | model
+    let revealed = false;          // 英文を表示したか
+    let jaRevealed = false;        // 日本語を表示したか（聞く&復唱モードで使用）
+    let currentModel = 0;          // モデル説明モードで選択中のモデル
+    let modelJa = false;           // モデル説明の日本語表示
+
+    // キーボード操作の受け皿（各モードの描画時に現在のカード用の動作を差し込む）
+    let keyActions = { play: null, toggle: null };
+
+    // 復習マーク: review[key] = true  （key = cat|set|index）
+    const review = {};
+    function keyOf(c, s, i) { return c + "|" + s + "|" + i; }
+
+    // 復習リスト（全カテゴリ・全セットからマーク済みを集める）
+    function reviewList() {
+      const out = [];
+      Object.keys(PHRASES).forEach(cat => {
+        PHRASES[cat].sets.forEach((s, si) => {
+          s.items.forEach((it, ii) => {
+            if (review[keyOf(cat, si, ii)]) out.push({ it: it, cat: cat, si: si, ii: ii });
+          });
+        });
+      });
+      return out;
+    }
+
+    function items() { return PHRASES[currentCat].sets[currentSet].items; }
+    function currentSetObj() { return PHRASES[currentCat].sets[currentSet]; }
+    // 最終ページ（他の言い方とニュアンス）がある場合はページ数を +1 する
+    function pageCount() {
+      const s = currentSetObj();
+      return s.items.length + (s.variants && s.variants.length ? 1 : 0);
+    }
+    function isVariantPage() {
+      const s = currentSetObj();
+      return !!(s.variants && s.variants.length) && index === s.items.length;
+    }
+
+    // ---- 音声（声は自由に選択。既定は自動＝ブラウザ標準） ----
+    let selectedVoiceName = "";   // "" = 自動
+    // 端末の英語ボイスを一覧化し、ユーザーが選べるようにする（既定は自動＝ブラウザ標準）
+    let enVoices = [];
+    function loadVoices() {
+      if (!("speechSynthesis" in window)) return;
+      enVoices = window.speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+      renderVoicePicker();
+    }
+    if ("speechSynthesis" in window) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices; // 非同期読み込み対応
+    }
+    function renderVoicePicker() {
+      const sel = document.getElementById("voiceSelect");
+      if (!sel) return;
+      const keep = sel.value;
+      sel.innerHTML = "";
+      const auto = document.createElement("option");
+      auto.value = ""; auto.textContent = "自動（ブラウザ標準）";
+      sel.appendChild(auto);
+      enVoices.forEach(v => {
+        const o = document.createElement("option");
+        o.value = v.name;
+        o.textContent = v.name + "（" + v.lang + "）";
+        sel.appendChild(o);
+      });
+      // 既存の選択を維持
+      if (keep && enVoices.some(v => v.name === keep)) sel.value = keep;
+      else if (selectedVoiceName && enVoices.some(v => v.name === selectedVoiceName)) sel.value = selectedVoiceName;
+    }
+    function currentVoice() {
+      if (!selectedVoiceName) return null; // 自動: ブラウザ標準に任せる
+      return enVoices.find(v => v.name === selectedVoiceName) || null;
+    }
+    function makeUtterance(text, rate) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = rate || 1;
+      const v = currentVoice();
+      if (v) u.voice = v;   // 未選択なら voice は設定しない（ブラウザ標準）
+      return u;             // pitch は既定(1)のまま。加工しないほうが自然に聞こえる
+    }
+    function speak(text, rate) {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(makeUtterance(text, rate));
+    }
+    function speakRepeat(text, times) {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      for (let i = 0; i < times; i++) window.speechSynthesis.speak(makeUtterance(text, 1));
+    }
+
+    // ---- 選択UI ----
+    function renderCats() {
+      catsEl.innerHTML = "";
+      Object.keys(PHRASES).forEach(k => {
+        const c = PHRASES[k];
+        const b = document.createElement("button");
+        b.className = "tab" + (k === currentCat ? " active" : "");
+        b.textContent = c.icon + " " + c.title;
+        b.onclick = () => { currentCat = k; currentSet = 0; index = 0; render(); };
+        catsEl.appendChild(b);
+      });
+    }
+    function setDoneCount(sIndex) {
+      const list = PHRASES[currentCat].sets[sIndex].items;
+      let n = 0;
+      for (let i = 0; i < list.length; i++) if (review[keyOf(currentCat, sIndex, i)]) n++;
+      return n;
+    }
+    function renderSets() {
+      setsEl.innerHTML = "";
+      PHRASES[currentCat].sets.forEach((s, i) => {
+        const done = setDoneCount(i);
+        const b = document.createElement("button");
+        b.className = "set" + (i === currentSet ? " active" : "");
+        b.innerHTML = s.name + (done > 0 ? ' <span class="done">★' + done + '</span>' : "");
+        b.onclick = () => { currentSet = i; index = 0; render(); };
+        setsEl.appendChild(b);
+      });
+    }
+
+    // ---- カード描画 ----
+    function render() {
+      revealed = false;      // カード切替のたびに英語は伏せる（耳からを優先）
+      jaRevealed = false;    // 日本語も伏せる
+
+      // モデル説明モードは専用フロー（カテゴリ/セット/ナビは使わない）
+      if (mode === "model") { renderModelMode(); return; }
+      // 復習リストモードも専用フロー
+      if (mode === "review") { renderReviewMode(); return; }
+      // 通常モードでは各UIを表示に戻す
+      catsEl.style.display = "";
+      setsEl.style.display = "";
+      progressEl.style.display = "";
+      document.querySelector(".nav").style.display = "";
+
+      renderCats(); renderSets();
+      const list = items();
+      const pages = pageCount();
+      const done = setDoneCount(currentSet);
+      progressEl.innerHTML = "復習マーク: <b>★" + done + "</b> / " + list.length + "（このセット）";
+      navCount.textContent = (index + 1) + " / " + pages;
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === pages - 1;
+
+      // 最終ページ = 他の言い方とニュアンス（知識ページ）
+      if (isVariantPage()) { renderVariantPage(); return; }
+
+      const item = list[index];
+
+      cardEl.innerHTML = "";
+      const counter = document.createElement("div"); counter.className = "counter";
+      counter.textContent = PHRASES[currentCat].title + " · " + PHRASES[currentCat].sets[currentSet].name;
+      cardEl.appendChild(counter);
+      const tag = document.createElement("div"); tag.className = "tag"; tag.textContent = item.tag;
+      cardEl.appendChild(tag);
+
+      if (mode === "listen") renderListen(item);
+      else renderRecall(item);
+
+      appendReviewButton(keyOf(currentCat, currentSet, index));
+    }
+
+    // 最終ページ: 他の言い方とニュアンス（練習ではなく知識の確認）
+    function renderVariantPage() {
+      const s = currentSetObj();
+      cardEl.innerHTML = "";
+
+      const counter = document.createElement("div"); counter.className = "counter";
+      counter.textContent = PHRASES[currentCat].title + " · " + s.name;
+      cardEl.appendChild(counter);
+
+      const tag = document.createElement("div"); tag.className = "tag";
+      tag.textContent = "他の言い方とニュアンス";
+      cardEl.appendChild(tag);
+
+      const list = document.createElement("div");
+      list.style.textAlign = "left"; list.style.marginTop = "10px";
+      s.variants.forEach(v => {
+        const row = document.createElement("div");
+        row.style.padding = "12px 0";
+        row.style.borderBottom = "1px solid var(--line)";
+        if (v.en) {
+          const line = document.createElement("div");
+          line.style.display = "flex"; line.style.alignItems = "center"; line.style.gap = "10px";
+          const en = document.createElement("span");
+          en.style.fontSize = "18px"; en.style.fontWeight = "700"; en.style.color = "var(--navy)";
+          en.textContent = v.en;
+          const play = mkBtn("🔊", "btn-ghost", () => speak(v.en, 1));
+          play.style.padding = "4px 10px"; play.style.fontSize = "12px";
+          line.appendChild(en); line.appendChild(play);
+          row.appendChild(line);
+        }
+        const note = document.createElement("div");
+        note.style.fontSize = "13px"; note.style.color = "var(--ink-soft)"; note.style.marginTop = v.en ? "4px" : "0";
+        note.textContent = v.note;
+        row.appendChild(note);
+        list.appendChild(row);
+      });
+      cardEl.appendChild(list);
+
+      const hint = document.createElement("div"); hint.className = "hint";
+      hint.textContent = "ここは覚えなくて大丈夫です。「そういう言い方もある」と知っておくだけで会話が楽になります。";
+      cardEl.appendChild(hint);
+
+      keyActions.play = null;
+      keyActions.toggle = null;
+    }
+
+    // 復習ボタン（1つだけ。押すと復習リストに入る／もう一度押すと外れる）
+    function appendReviewButton(key) {
+      const check = document.createElement("div"); check.className = "check";
+      const marked = !!review[key];
+      const b = document.createElement("button");
+      b.className = "btn " + (marked ? "btn-gold" : "btn-ghost");
+      b.textContent = marked ? "★ 復習リストに登録済み（外す）" : "☆ 復習リストに追加";
+      b.onclick = () => {
+        if (marked) delete review[key]; else review[key] = true;
+        render();
+      };
+      check.appendChild(b);
+      cardEl.appendChild(check);
+    }
+
+    // ---- 復習リストモード（マークした問題だけをまとめて練習） ----
+    function renderReviewMode() {
+      catsEl.style.display = "none";
+      setsEl.style.display = "none";
+      progressEl.style.display = "";
+      document.querySelector(".nav").style.display = "";
+
+      const list = reviewList();
+      progressEl.innerHTML = "★ 復習リスト: <b>" + list.length + "</b> 件";
+      cardEl.innerHTML = "";
+
+      if (list.length === 0) {
+        const msg = document.createElement("div");
+        msg.className = "hint"; msg.style.fontSize = "14px"; msg.style.fontStyle = "normal";
+        msg.textContent = "復習リストは空です。各フレーズの「☆ 復習リストに追加」を押すと、ここにまとまります。";
+        cardEl.appendChild(msg);
+        navCount.textContent = "0 / 0";
+        prevBtn.disabled = true; nextBtn.disabled = true;
+        keyActions.play = null; keyActions.toggle = null;
+        return;
+      }
+
+      if (index >= list.length) index = list.length - 1;
+      const entry = list[index];
+
+      const counter = document.createElement("div"); counter.className = "counter";
+      counter.textContent = PHRASES[entry.cat].title + " · " + PHRASES[entry.cat].sets[entry.si].name;
+      cardEl.appendChild(counter);
+      const tag = document.createElement("div"); tag.className = "tag"; tag.textContent = entry.it.tag;
+      cardEl.appendChild(tag);
+
+      // 復習は「耳から」形式（英語・日本語とも伏せ、必要なら表示）
+      renderListen(entry.it);
+      appendReviewButton(keyOf(entry.cat, entry.si, entry.ii));
+
+      navCount.textContent = (index + 1) + " / " + list.length;
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === list.length - 1;
+    }
+
+    // 聞く&復唱（耳から）: 英語・日本語とも最初は伏せる → 音声で理解 → 必要なら表示で確認
+    function renderListen(item) {
+      // 英文（伏せ）
+      const en = document.createElement("div");
+      en.className = "en" + (revealed ? "" : " veiled");
+      en.textContent = item.en;
+      en.title = "クリックで表示";
+      en.onclick = () => { revealed = true; en.classList.remove("veiled"); enToggle.textContent = "英文を隠す"; };
+
+      // 日本語（伏せ）
+      const ja = document.createElement("div");
+      ja.className = "ja" + (jaRevealed ? "" : " veiled");
+      ja.textContent = item.ja;
+      ja.title = "クリックで表示";
+      ja.onclick = () => { jaRevealed = true; ja.classList.remove("veiled"); jaToggle.textContent = "訳を隠す"; };
+
+      const btns = document.createElement("div"); btns.className = "btns";
+      btns.appendChild(mkBtn("▶ 聞く", "btn-navy", () => speak(item.en, 1)));
+      btns.appendChild(mkBtn("🐢 ゆっくり", "btn-ghost", () => speak(item.en, 0.7)));
+      btns.appendChild(mkBtn("🔁 3回連続", "btn-ghost", () => speakRepeat(item.en, 3)));
+      const enToggle = mkBtn(revealed ? "英文を隠す" : "英文を表示", "btn-ghost", () => {
+        revealed = !revealed;
+        en.classList.toggle("veiled", !revealed);
+        enToggle.textContent = revealed ? "英文を隠す" : "英文を表示";
+      });
+      const jaToggle = mkBtn(jaRevealed ? "訳を隠す" : "訳を表示", "btn-ghost", () => {
+        jaRevealed = !jaRevealed;
+        ja.classList.toggle("veiled", !jaRevealed);
+        jaToggle.textContent = jaRevealed ? "訳を隠す" : "訳を表示";
+      });
+      btns.appendChild(enToggle);
+      btns.appendChild(jaToggle);
+
+      // キーボード操作: Space=聞く / Enter=訳を表示・非表示
+      keyActions.play = () => speak(item.en, 1);
+      keyActions.toggle = () => jaToggle.click();
+
+      cardEl.appendChild(en); cardEl.appendChild(ja); cardEl.appendChild(btns);
+      const hint = document.createElement("div"); hint.className = "hint";
+      hint.textContent = "まず音声だけで意味を取り、声に出しましょう。英語・日本語はどちらもクリックで表示できます。";
+      cardEl.appendChild(hint);
+    }
+
+    // 想起: 日本語だけ見て英語を自分で言う → 表示で答え合わせ → 音声
+    function renderRecall(item) {
+      const ja = document.createElement("div"); ja.className = "ja big"; ja.textContent = item.ja;
+      const en = document.createElement("div");
+      en.className = "en" + (revealed ? "" : " veiled");
+      en.textContent = item.en;
+      en.style.marginTop = "18px";
+      en.title = "クリックで答えを表示";
+      en.onclick = () => { revealed = true; en.classList.remove("veiled"); };
+
+      const btns = document.createElement("div"); btns.className = "btns";
+      btns.appendChild(mkBtn("答えを表示", "btn-bord", () => { revealed = true; en.classList.remove("veiled"); }));
+      btns.appendChild(mkBtn("🔊 正解を聞く", "btn-ghost", () => speak(item.en, 1)));
+
+      // キーボード操作: Space=正解を聞く / Enter=答えを表示
+      keyActions.play = () => speak(item.en, 1);
+      keyActions.toggle = () => { revealed = true; en.classList.remove("veiled"); };
+
+      cardEl.appendChild(ja); cardEl.appendChild(en); cardEl.appendChild(btns);
+      const hint = document.createElement("div"); hint.className = "hint";
+      hint.textContent = "日本語を見て、英語を声に出してから答えを表示しましょう。";
+      cardEl.appendChild(hint);
+    }
+
+    function mkBtn(label, cls, onClick) {
+      const b = document.createElement("button"); b.className = "btn " + cls; b.textContent = label; b.onclick = onClick; return b;
+    }
+
+    // ---- モデル説明モード（通しの状況説明を聞いて真似する） ----
+    function renderModelMode() {
+      // カテゴリ/セット/進捗/ナビは隠す
+      catsEl.style.display = "none";
+      setsEl.style.display = "none";
+      progressEl.style.display = "none";
+      document.querySelector(".nav").style.display = "none";
+
+      const m = MODELS[currentModel];
+      cardEl.innerHTML = "";
+
+      // モデル選択ピル
+      const picker = document.createElement("div"); picker.className = "sets"; picker.style.marginBottom = "18px";
+      MODELS.forEach((mm, i) => {
+        const b = document.createElement("button");
+        b.className = "set" + (i === currentModel ? " active" : "");
+        b.textContent = (i + 1) + ". " + mm.title;
+        b.onclick = () => { currentModel = i; render(); };
+        picker.appendChild(b);
+      });
+      cardEl.appendChild(picker);
+
+      const scene = document.createElement("div"); scene.className = "tag"; scene.textContent = m.scene;
+      cardEl.appendChild(scene);
+
+      // 全文再生・訳トグル
+      const top = document.createElement("div"); top.className = "btns"; top.style.marginTop = "4px";
+      top.appendChild(mkBtn("▶ 通しで聞く", "btn-navy", () => speakSequence(m.lines.map(l => l.en))));
+      top.appendChild(mkBtn("🐢 ゆっくり通し", "btn-ghost", () => speakSequence(m.lines.map(l => l.en), 0.75)));
+      const jaBtn = mkBtn(modelJa ? "訳を隠す" : "訳を表示", "btn-ghost", () => {
+        modelJa = !modelJa;
+        cardEl.querySelectorAll(".ja-line").forEach(el => el.style.display = modelJa ? "block" : "none");
+        jaBtn.textContent = modelJa ? "訳を隠す" : "訳を表示";
+      });
+      top.appendChild(jaBtn);
+      cardEl.appendChild(top);
+
+      // キーボード操作: Space=通しで聞く / Enter=訳を表示・非表示
+      keyActions.play = () => speakSequence(m.lines.map(l => l.en));
+      keyActions.toggle = () => jaBtn.click();
+
+      // 文ごと（1文ずつ聞いて真似）
+      const list = document.createElement("div"); list.style.marginTop = "18px"; list.style.textAlign = "left";
+      m.lines.forEach((l, i) => {
+        const row = document.createElement("div");
+        row.style.padding = "10px 0"; row.style.borderBottom = "1px solid var(--line)";
+        const en = document.createElement("div");
+        en.style.fontSize = "18px"; en.style.color = "var(--navy)"; en.style.fontWeight = "700";
+        en.textContent = (i + 1) + ". " + l.en;
+        const ja = document.createElement("div");
+        ja.className = "ja-line";
+        ja.style.fontSize = "13px"; ja.style.color = "var(--ink-soft)"; ja.style.marginTop = "3px";
+        ja.style.display = modelJa ? "block" : "none";
+        ja.textContent = l.ja;
+        const play = mkBtn("🔊", "btn-ghost", () => speak(l.en, 1));
+        play.style.marginTop = "6px"; play.style.padding = "5px 12px";
+        row.appendChild(en); row.appendChild(ja); row.appendChild(play);
+        list.appendChild(row);
+      });
+      cardEl.appendChild(list);
+
+      const hint = document.createElement("div"); hint.className = "hint";
+      hint.textContent = "まず通しで聞いて流れをつかみ、1文ずつ真似して言いましょう。つなぎ方（First / As a result / However など）に注目。";
+      cardEl.appendChild(hint);
+    }
+
+    // 複数文を順に読み上げ
+    function speakSequence(lines, rate) {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      lines.forEach(t => window.speechSynthesis.speak(makeUtterance(t, rate || 1)));
+    }
+
+    // ---- イベント ----
+    modeBtns.forEach(b => {
+      b.onclick = () => {
+        modeBtns.forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        mode = b.dataset.mode; index = 0; render();
+      };
+    });
+    // 前へ / 次へ（モデル説明モードではモデルを切り替える）
+    function goPrev() {
+      if (mode === "model") { if (currentModel > 0) { currentModel--; render(); } return; }
+      if (index > 0) { index--; render(); }
+    }
+    function goNext() {
+      if (mode === "model") { if (currentModel < MODELS.length - 1) { currentModel++; render(); } return; }
+      const max = (mode === "review") ? reviewList().length : pageCount();
+      if (index < max - 1) { index++; render(); }
+    }
+    prevBtn.onclick = goPrev;
+    nextBtn.onclick = goNext;
+
+    // 声の選択・試聴
+    const voiceSelect = document.getElementById("voiceSelect");
+    voiceSelect.onchange = () => { selectedVoiceName = voiceSelect.value; };
+    document.getElementById("voiceTest").onclick = () =>
+      speak("Hello. This is how I sound. Let's practice together.", 1);
+    renderVoicePicker();
+
+    // ---- キーボード操作 ----
+    // ← 前へ / → 次へ / Space 聞く / Enter 訳(答え)を表示
+    document.addEventListener("keydown", (e) => {
+      const tag = (e.target && e.target.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea" || e.ctrlKey || e.metaKey || e.altKey) return;
+      switch (e.key) {
+        case "ArrowLeft":
+          e.preventDefault(); goPrev(); break;
+        case "ArrowRight":
+          e.preventDefault(); goNext(); break;
+        case " ":
+          e.preventDefault(); if (keyActions.play) keyActions.play(); break;
+        case "Enter":
+          e.preventDefault(); if (keyActions.toggle) keyActions.toggle(); break;
+      }
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
